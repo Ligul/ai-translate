@@ -7,7 +7,7 @@
   "dir": "auto",
   "theme_color": "#2C3E50",
   "background_color": "#FFFFFF",
-  "orientation": "any",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icons/android-chrome-512x512.png",
