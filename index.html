@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css" />
     <script src="bootstrap.bundle.min.js"></script>
     <script src="jquery-3.6.4.slim.min.js"></script>
+    <link rel="manifest" href="manifest.json" />
   </head>
   <body>
     <div
@@ -40,6 +41,7 @@
                   type="text"
                   class="form-control"
                   value="https://api.openai.com/v1/chat/completions"
+                  placeholder="https://api.openai.com/v1/chat/completions"
                   id="apiEndpointInput"
                   required
                 />
@@ -212,6 +214,11 @@
         </button>
       </div>
     </footer>
+    <script>
+      if (typeof navigator.serviceWorker !== "undefined") {
+        navigator.serviceWorker.register("sw.js");
+      }
+    </script>
     <script src="app.js"></script>
   </body>
 </html>

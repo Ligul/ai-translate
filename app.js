@@ -64,20 +64,33 @@ function saveOpenAiCreds(apiUrl, apiKey) {
 
 function showApiKeyModal() {
   $("#apiKeyModal").modal("show");
-  apiEndpointInput.value = OPENAI_API_URL;
+  if (OPENAI_API_URL != "") {
+    apiEndpointInput.value = OPENAI_API_URL;
+  }
   apiKeyInput.value = OPENAI_API_KEY;
   toggleOpenAiCredsSaveButton();
 }
 
 // On page load check if lastTargetLanguage is in localStorage and if so, load it and set as value of targetLanguageSelect if it is in list
 document.addEventListener("DOMContentLoaded", function () {
-  const storedLanguage = localStorage.getItem("lastTargetLanguage");
-  if (storedLanguage) {
+  const storedTargetLanguage = localStorage.getItem("lastTargetLanguage");
+  if (storedTargetLanguage) {
     const options = targetLanguageSelect.getElementsByTagName("option");
     for (let i = 0; i < options.length; i++) {
-      if (options[i].value === storedLanguage) {
-        targetLanguageSelect.value = storedLanguage;
+      if (options[i].value === storedTargetLanguage) {
+        targetLanguageSelect.value = storedTargetLanguage;
         hideSameSourceLanguage();
+        break;
+      }
+    }
+  }
+  const storedSourceLanguage = localStorage.getItem("lastSourceLanguage");
+  if (storedSourceLanguage) {
+    const options = sourceLanguageSelect.getElementsByTagName("option");
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].value === storedSourceLanguage) {
+        sourceLanguageSelect.value = storedSourceLanguage;
+        hideSameTargetLanguage();
         break;
       }
     }
@@ -89,14 +102,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Listen for changes on the targetLanguageSelect and store it's value in localStorage
 targetLanguageSelect.addEventListener("change", function () {
-  const selectedLanguage = targetLanguageSelect.value;
+  var selectedLanguage = targetLanguageSelect.value;
   localStorage.setItem("lastTargetLanguage", selectedLanguage);
   hideSameSourceLanguage();
 });
 
 sourceLanguageSelect.addEventListener("change", function () {
-  hideSameTargetLanguage();
   var selectedSourceLang = sourceLanguageSelect.value;
+  hideSameTargetLanguage();
+  localStorage.setItem("lastSourceLanguage", selectedSourceLang);
   if (selectedSourceLang == "Any language") {
     reverseButton.disabled = true;
   } else {
@@ -265,10 +279,10 @@ stopButton.addEventListener("click", stop);
 
 function toggleOpenAiCredsSaveButton() {
   saveOpenAiCredsButton.disabled = false;
-  if (apiEndpointInput.value.trim() == "") {
-    apiEndpointInput.classList.add("is-invalid");
-    saveOpenAiCredsButton.disabled = true;
-  }
+  // if (apiEndpointInput.value.trim() == "") {
+  //   apiEndpointInput.classList.add("is-invalid");
+  //   saveOpenAiCredsButton.disabled = true;
+  // }
   if (apiKeyInput.value.trim() == "") {
     apiKeyInput.classList.add("is-invalid");
     saveOpenAiCredsButton.disabled = true;
@@ -283,9 +297,13 @@ apiEndpointInput.addEventListener("change", toggleOpenAiCredsSaveButton);
 apiKeyInput.addEventListener("change", toggleOpenAiCredsSaveButton);
 
 saveOpenAiCredsButton.addEventListener("click", function () {
-  if (apiEndpointInput.value == "" || apiKeyInput.value == "") {
+  if (apiKeyInput.value == "") {
     return;
   }
+  if (apiEndpointInput.value == "") {
+    apiEndpointInput.value = apiEndpointInput.placeholder;
+  }
+
   saveOpenAiCreds(apiEndpointInput.value, apiKeyInput.value);
   $("#apiKeyModal").modal("hide");
   clearTranslatedTextarea();
