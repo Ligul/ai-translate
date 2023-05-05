@@ -119,9 +119,14 @@ sourceLanguageSelect.addEventListener("change", function () {
 });
 
 reverseButton.addEventListener("click", function () {
+  const textLeft = sourceTextarea.value;
+  const textRight = translatedTextarea.value;
   const temp = sourceLanguageSelect.value;
   sourceLanguageSelect.value = targetLanguageSelect.value;
   targetLanguageSelect.value = temp;
+  clearTranslatedTextarea();
+  sourceTextarea.value = textRight;
+  translatedTextarea.value = textLeft;
 });
 
 sourceTextarea.addEventListener("input", function () {
