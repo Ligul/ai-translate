@@ -351,3 +351,8 @@ clearButton.addEventListener("click", function () {
   sourceTextarea.value = "";
   clearButton.disabled = true;
 });
+
+copyTranslatedButton.addEventListener("click", function () {
+  translatedTextarea.select();
+  navigator.clipboard.writeText(translatedTextarea.value);
+});
