@@ -15,6 +15,20 @@ const stopButton = document.getElementById("stopButton");
 const apiEndpointInput = document.getElementById("apiEndpointInput");
 const apiKeyInput = document.getElementById("apiKeyInput");
 const saveOpenAiCredsButton = document.getElementById("saveOpenAiCredsButton");
+const clearButton = document.getElementById("clearButton");
+const copyTranslatedButton = document.getElementById("copyTranslatedButton");
+
+function placeButtonInTextarea(button, textAreaRect) {
+  const buttonWidth = button.offsetWidth;
+  const buttonHeight = button.offsetHeight;
+  const buttonX = textAreaRect.right - (buttonWidth + 10); // adding margin of 10px
+  const buttonY = textAreaRect.bottom - (buttonHeight + 10); // adding margin of 10px
+  button.style.position = "absolute";
+  button.style.left = `${buttonX}px`;
+  button.style.top = `${buttonY}px`;
+  button.style.width = `${buttonWidth}px`;
+  button.style.height = `${buttonHeight}px`;
+}
 
 // Function to hide selected option from sourceLanguageSelect when selected in targetLanguageSelect
 function hideSameSourceLanguage() {
@@ -98,6 +112,11 @@ document.addEventListener("DOMContentLoaded", function () {
   if (!loadOpenaiCreds()) {
     showApiKeyModal();
   }
+  placeButtonInTextarea(clearButton, sourceTextarea.getBoundingClientRect());
+  placeButtonInTextarea(
+    copyTranslatedButton,
+    translatedTextarea.getBoundingClientRect()
+  );
 });
 
 // Listen for changes on the targetLanguageSelect and store it's value in localStorage
@@ -132,9 +151,11 @@ reverseButton.addEventListener("click", function () {
 sourceTextarea.addEventListener("input", function () {
   if (sourceTextarea.value == "") {
     translateButton.disabled = true;
+    clearButton.disabled = true;
     clearTranslatedTextarea();
   } else {
     translateButton.disabled = false;
+    clearButton.disabled = false;
   }
 });
 
@@ -218,10 +239,12 @@ const generate = async () => {
         }
       }
     }
+    copyTranslatedButton.disabled = false;
   } catch (error) {
     // Handle fetch request errors
     if (signal.aborted) {
-      translatedTextarea.value = "Request aborted.";
+      console.log("Request aborted.");
+      copyTranslatedButton.disabled = false;
     } else {
       console.error("Error:", error);
       console.error("Error!");
@@ -320,4 +343,11 @@ function clearTranslatedTextarea() {
   if (element) {
     element.parentNode.removeChild(element);
   }
+  copyTranslatedButton.disabled = true;
 }
+
+clearButton.addEventListener("click", function () {
+  clearTranslatedTextarea();
+  sourceTextarea.value = "";
+  clearButton.disabled = true;
+});
