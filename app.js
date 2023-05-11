@@ -117,6 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
     copyTranslatedButton,
     translatedTextarea.getBoundingClientRect()
   );
+  reverseButton.disabled = sourceLanguageSelect.value == "Any language";
 });
 
 // Listen for changes on the targetLanguageSelect and store it's value in localStorage
