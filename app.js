@@ -173,9 +173,9 @@ sourceTextarea.addEventListener("input", function () {
 });
 
 const generate = async () => {
-    // Alert the user if no text is entered
+    // Alert the user if no prompt value
     if (!sourceTextarea.value) {
-        alert("Please enter some text to translate.");
+        alert("Please enter a prompt.");
         return;
     }
 
@@ -184,25 +184,9 @@ const generate = async () => {
         sourceLanguageSelect.value != "Any language"
             ? " from " + sourceLanguageSelect.value
             : ""
-    } to ${targetLanguageSelect.value}.`;
-
-    const functions = [
-        {
-            name: "return_translation",
-            description: "Return translated to target language text",
-            parameters: {
-                type: "object",
-                properties: {
-                    translation: {
-                        type: "string",
-                        description: "Translated text",
-                    },
-                    // "source_language": {"type": "string", "enum": ["Russian", "English"]},
-                },
-                required: ["translation"],
-            },
-        },
-    ];
+    } to ${targetLanguageSelect.value}. Return only the translated text in ${
+        targetLanguageSelect.value
+    } language, no quotes:`;
 
     // Disable the generate button and enable the stop button
     translateButton.hidden = true;
@@ -230,8 +214,6 @@ const generate = async () => {
                 ],
                 temperature: 0.7,
                 stream: true, // For streaming responses
-                functions: functions,
-                function_call: { name: "return_translation" },
             }),
             signal, // Pass the signal to the fetch request
         });
@@ -243,8 +225,6 @@ const generate = async () => {
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
         translatedTextarea.value = "";
-
-        var result_json = "";
 
         while (true) {
             const { done, value } = await reader.read();
@@ -265,29 +245,13 @@ const generate = async () => {
             for (const parsedLine of parsedLines) {
                 const { choices } = parsedLine;
                 const { delta } = choices[0];
-                const { finish_reason } = choices[0];
-                if (finish_reason != null) {
-                    break;
-                }
-                const { function_call } = delta;
-                const { arguments } = function_call;
-
+                const { content } = delta;
                 // Update the UI with the new content
-                if (arguments) {
-                    result_json += arguments;
-                    try {
-                        var streamed_part = JSON.parse(
-                            result_json + '"}'
-                        ).translation;
-                        translatedTextarea.value = streamed_part;
-                    } catch (e) {}
+                if (content) {
+                    translatedTextarea.value += content;
                 }
             }
         }
-        // parse result_json
-        const result = JSON.parse(result_json);
-        translatedTextarea.value = result.translation;
-
         copyTranslatedButton.disabled = false;
     } catch (error) {
         // Handle fetch request errors
@@ -295,7 +259,8 @@ const generate = async () => {
             console.log("Request aborted.");
             copyTranslatedButton.disabled = false;
         } else {
-            console.error(error);
+            console.error("Error:", error);
+            console.error("Error!");
             translatedTextarea.value = "Error occurred while generating.";
             // TODO: Do this only when access error
             const button = document.createElement("button");
